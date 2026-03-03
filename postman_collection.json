@@ -1,0 +1,539 @@
+{
+  "info": {
+    "name": "Project Management API",
+    "description": "Full-stack Kanban-style Project Management Application API\n\nBase URL: http://localhost:5000/api\n\n## Authentication\nAll protected endpoints require a Bearer token in the Authorization header.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000/api",
+      "type": "string"
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{accessToken}}"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "1. Authentication",
+      "item": [
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/register",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john@example.com\",\n  \"password\": \"password123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login User",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/login",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john@example.com\",\n  \"password\": \"password123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/refresh",
+            "header": [],
+            "description": "Uses httpOnly cookie for refresh token"
+          }
+        },
+        {
+          "name": "Logout User",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/logout",
+            "header": []
+          }
+        },
+        {
+          "name": "Get Current User",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/auth/me",
+            "header": []
+          }
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/auth/profile",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Name\",\n  \"avatar\": \"https://example.com/avatar.jpg\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Upload",
+      "item": [
+        {
+          "name": "Upload Image",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/upload/image",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Upload Avatar",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/upload/avatar",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Upload Task Attachment",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/upload/task/:taskId",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Image",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/upload/:publicId",
+            "header": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Projects",
+      "item": [
+        {
+          "name": "List User's Projects",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/projects",
+            "header": []
+          }
+        },
+        {
+          "name": "Create Project",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/projects",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Website Redesign\",\n  \"description\": \"Complete redesign of company website\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Project Details",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/projects/:id",
+            "header": []
+          }
+        },
+        {
+          "name": "Update Project",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/projects/:id",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Project Name\",\n  \"description\": \"Updated description\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Project",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/projects/:id",
+            "header": []
+          }
+        },
+        {
+          "name": "Add Member to Project",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/projects/:id/members",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"jane@example.com\",\n  \"role\": \"member\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Remove Member from Project",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/projects/:id/members/:userId",
+            "header": []
+          }
+        },
+        {
+          "name": "Update Member Role",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/projects/:id/members/:userId/role",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"admin\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Boards",
+      "item": [
+        {
+          "name": "List Project Boards",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/boards/project/:projectId",
+            "header": []
+          }
+        },
+        {
+          "name": "Create Board",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/boards/project/:projectId",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Main Board\",\n  \"description\": \"Primary Kanban board for this project\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Board with Columns & Tasks",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/boards/:boardId",
+            "header": []
+          }
+        },
+        {
+          "name": "Update Board",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/boards/:boardId",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Board Name\",\n  \"description\": \"Updated description\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Board",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/boards/:boardId",
+            "header": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Columns",
+      "item": [
+        {
+          "name": "List Board Columns",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/columns/board/:boardId",
+            "header": []
+          }
+        },
+        {
+          "name": "Create Column",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/columns/board/:boardId",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"To Do\",\n  \"order\": 0\n}"
+            }
+          }
+        },
+        {
+          "name": "Update Column",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/columns/:columnId",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"In Progress\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Column",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/columns/:columnId",
+            "header": []
+          }
+        },
+        {
+          "name": "Reorder Columns",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/columns/board/:boardId/reorder",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"columnIds\": [\"columnId1\", \"columnId2\", \"columnId3\"]\n}"
+            }
+          }
+        },
+        {
+          "name": "Move Task (Drag & Drop)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/columns/move-task",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sourceColumnId\": \"columnId1\",\n  \"destinationColumnId\": \"columnId2\",\n  \"sourceIndex\": 0,\n  \"destinationIndex\": 1,\n  \"taskId\": \"taskId\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Tasks",
+      "item": [
+        {
+          "name": "Get Dashboard Stats",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/tasks/dashboard/stats",
+            "header": []
+          }
+        },
+        {
+          "name": "Get Current User's Tasks",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/tasks/my-tasks",
+            "header": []
+          }
+        },
+        {
+          "name": "List Board Tasks",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/tasks/board/:boardId",
+            "header": []
+          }
+        },
+        {
+          "name": "Create Task",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/tasks/board/:boardId",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Design homepage\",\n  \"description\": \"Create mockups for homepage\",\n  \"priority\": \"high\",\n  \"dueDate\": \"2024-01-15\",\n  \"assignee\": \"userId\",\n  \"columnId\": \"columnId\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Task Details",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/tasks/:taskId",
+            "header": []
+          }
+        },
+        {
+          "name": "Update Task",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/tasks/:taskId",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated title\",\n  \"status\": \"in-progress\",\n  \"priority\": \"medium\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Task",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/tasks/:taskId",
+            "header": []
+          }
+        },
+        {
+          "name": "Add Comment to Task",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/tasks/:taskId/comments",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"This looks great!\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Comment from Task",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/tasks/:taskId/comments/:commentId",
+            "header": []
+          }
+        }
+      ]
+    }
+  ]
+}

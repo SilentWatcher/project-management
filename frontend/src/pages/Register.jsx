@@ -153,7 +153,7 @@ const Register = () => {
           <Title level={2} style={{ margin: 0, marginBottom: 8 }}>
             <span className="gradient-text">Create Account</span>
           </Title>
-          <Text type="secondary">Join TaskFlow and start managing projects</Text>
+          <Text type="secondary">Join Zenkai and start managing projects</Text>
         </div>
 
         <Card

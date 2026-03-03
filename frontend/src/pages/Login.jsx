@@ -154,7 +154,7 @@ const Login = () => {
           <Title level={2} style={{ margin: 0, marginBottom: 8 }}>
             <span className="gradient-text">Welcome Back</span>
           </Title>
-          <Text type="secondary">Sign in to continue to TaskFlow</Text>
+          <Text type="secondary">Sign in to continue to Zenkai</Text>
         </div>
 
         <Card

@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import { AppError, asyncHandler } from '../middleware/errorHandler.js';
+import { sendWelcomeEmail } from '../services/emailService.js';
 
 // Generate tokens helper
 const generateTokens = (userId) => {
@@ -43,6 +44,9 @@ export const register = asyncHandler(async (req, res) => {
     email,
     password
   });
+
+  // Send welcome email (non-blocking)
+  sendWelcomeEmail(user).catch(err => console.error('Welcome email failed:', err));
 
   // Generate tokens
   const { accessToken, refreshToken } = generateTokens(user._id);

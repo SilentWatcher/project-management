@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+// Use relative path to go through Vite proxy
+const API_URL = '/api';
 
 const api = axios.create({
   baseURL: API_URL,
@@ -46,7 +47,7 @@ api.interceptors.response.use(
         try {
           // Try to refresh the token
           const response = await axios.post(
-            `${API_URL}/auth/refresh`,
+            `/auth/refresh`,
             {},
             { withCredentials: true }
           );
