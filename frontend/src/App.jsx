@@ -17,6 +17,7 @@ import Calendar from './pages/Calendar';
 import Team from './pages/Team';
 import Analytics from './pages/Analytics';
 import Settings from './pages/Settings';
+import Workspaces from './pages/Workspaces';
 import NotFound from './pages/NotFound';
 
 // Private Route wrapper
@@ -99,6 +100,7 @@ function App() {
         }
       >
         <Route index element={<Dashboard />} />
+        <Route path="workspaces" element={<Workspaces />} />
         <Route path="projects" element={<Projects />} />
         <Route path="projects/:projectId" element={<ProjectDetail />} />
         <Route path="projects/:projectId/boards/:boardId" element={<Board />} />

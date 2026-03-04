@@ -1,208 +1,218 @@
-import { Layout, Button, Badge, Dropdown, Space, Typography, Tooltip } from 'antd';
+import { useState } from 'react';
+import { Layout, Input, Button, Avatar, Badge, Dropdown, Space, Typography, Tooltip } from 'antd';
 import {
-  MenuOutlined,
+  SearchOutlined,
   BellOutlined,
-  MoonOutlined,
-  SunOutlined,
+  PlusOutlined,
+  MenuOutlined,
+  SettingOutlined,
   UserOutlined,
   LogoutOutlined,
-  SettingOutlined,
-  BgColorsOutlined,
+  QuestionCircleOutlined,
+  AppstoreOutlined,
+  MessageOutlined,
 } from '@ant-design/icons';
-import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import {
-  toggleTheme,
-  selectTheme,
-  selectAccentPreset,
-  ACCENT_PRESETS,
-  setAccentColor,
-} from '../../store/slices/uiSlice';
-import { logout } from '../../store/slices/authSlice';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import { selectUser } from '../../store/slices/authSlice';
+import { selectAccentPreset, openModal } from '../../store/slices/uiSlice';
 
-const { Header: AntHeader } = Layout;
+const { Header } = Layout;
 const { Text } = Typography;
 
-const Header = ({ onMenuClick }) => {
-  const dispatch = useDispatch();
+const HeaderComponent = ({ onMenuClick }) => {
   const navigate = useNavigate();
-  const isDark = useSelector(selectTheme);
+  const location = useLocation();
+  const dispatch = useDispatch();
+  const user = useSelector(selectUser);
   const accent = useSelector(selectAccentPreset);
-  const user = useSelector((state) => state.auth.user);
 
-  const handleLogout = () => {
-    dispatch(logout());
-    navigate('/login');
+  // Get page title based on path
+  const getPageTitle = () => {
+    const path = location.pathname;
+    if (path === '/') return 'Home';
+    if (path.startsWith('/projects/')) return 'Project';
+    if (path === '/projects') return 'Projects';
+    if (path === '/tasks') return 'My Tasks';
+    if (path === '/calendar') return 'Calendar';
+    if (path === '/team') return 'Team';
+    if (path === '/analytics') return 'Analytics';
+    if (path === '/settings') return 'Settings';
+    if (path === '/workspaces') return 'Workspaces';
+    return 'TaskFlow';
   };
 
-  const userMenuItems = [
-    {
-      key: 'profile',
-      icon: <UserOutlined />,
-      label: 'Profile',
-      onClick: () => navigate('/settings'),
-    },
-    {
-      key: 'settings',
-      icon: <SettingOutlined />,
-      label: 'Settings',
-      onClick: () => navigate('/settings'),
-    },
-    {
-      type: 'divider',
-    },
-    {
-      key: 'logout',
-      icon: <LogoutOutlined />,
-      label: 'Logout',
-      danger: true,
-      onClick: handleLogout,
-    },
-  ];
+  const handleCreate = () => {
+    // Show dropdown for creating new items
+    const items = [
+      {
+        key: 'project',
+        icon: <AppstoreOutlined />,
+        label: 'New Project',
+        onClick: () => dispatch(openModal({ modal: 'projectCreate' })),
+      },
+      {
+        key: 'task',
+        icon: <PlusOutlined />,
+        label: 'New Task',
+      },
+    ];
+    return items;
+  };
 
-  const accentMenuItems = Object.entries(ACCENT_PRESETS).map(([key, preset]) => ({
-    key,
-    label: (
-      <Space>
-        <div
-          style={{
-            width: 20,
-            height: 20,
-            borderRadius: 4,
-            background: preset.gradient,
-          }}
-        />
-        <Text>{preset.name}</Text>
-      </Space>
-    ),
-    onClick: () => dispatch(setAccentColor(key)),
-  }));
+  // User menu
+  const userMenuItems = {
+    items: [
+      {
+        key: 'profile',
+        icon: <UserOutlined />,
+        label: 'Profile',
+      },
+      {
+        key: 'settings',
+        icon: <SettingOutlined />,
+        label: 'Settings',
+        onClick: () => navigate('/settings'),
+      },
+      {
+        key: 'help',
+        icon: <QuestionCircleOutlined />,
+        label: 'Help & Support',
+      },
+      {
+        type: 'divider',
+      },
+      {
+        key: 'logout',
+        icon: <LogoutOutlined />,
+        label: 'Sign out',
+        danger: true,
+      },
+    ],
+  };
 
   return (
-    <AntHeader
+    <Header
       style={{
-        background: 'var(--bg-primary)',
-        borderBottom: '1px solid var(--border-color)',
-        padding: '0 24px',
+        background: '#ffffff',
+        borderBottom: '1px solid #e8e8e8',
+        padding: '0 20px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
+        height: 52,
         position: 'sticky',
         top: 0,
-        zIndex: 50,
-        height: 64,
+        zIndex: 99,
       }}
     >
       {/* Left Section */}
-      <Space>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+        {/* Mobile Menu Button */}
         <Button
           type="text"
           icon={<MenuOutlined />}
           onClick={onMenuClick}
-          className="lg:hidden"
-          style={{ color: 'var(--text-primary)' }}
+          style={{ display: 'none' }}
+          className="lg:flex"
         />
-        <Text
-          strong
+        
+        {/* Page Title */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Text strong style={{ fontSize: 18, color: '#1d1c1d' }}>
+            {getPageTitle()}
+          </Text>
+        </div>
+      </div>
+
+      {/* Center Section - Search */}
+      <div style={{ flex: 1, maxWidth: 500, margin: '0 24px' }}>
+        <Input
+          placeholder="Search TaskFlow..."
+          prefix={<SearchOutlined style={{ color: '#ababad' }} />}
           style={{
-            fontSize: 18,
-            display: 'none',
-            lg: { display: 'block' },
+            background: '#f8f8f8',
+            border: 'none',
+            borderRadius: 6,
+            height: 36,
           }}
-          className="hidden lg:block"
-        >
-          Welcome back, {user?.name?.split(' ')[0]}
-        </Text>
-      </Space>
+        />
+      </div>
 
       {/* Right Section */}
-      <Space size="middle">
-        {/* Accent Color Picker */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        {/* Create Button */}
         <Dropdown
-          menu={{ items: accentMenuItems }}
-          placement="bottomRight"
-          arrow
+          menu={{ items: handleCreate() }}
+          trigger={['click']}
         >
-          <Tooltip title="Change accent color">
-            <Button
-              type="text"
-              icon={
-                <div
-                  style={{
-                    width: 20,
-                    height: 20,
-                    borderRadius: 4,
-                    background: accent.gradient,
-                  }}
-                />
-              }
-              style={{ padding: 4 }}
-            />
-          </Tooltip>
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            style={{
+              background: '#1264a3',
+              border: 'none',
+              borderRadius: 6,
+            }}
+          >
+            Create
+          </Button>
         </Dropdown>
-
-        {/* Theme Toggle */}
-        <Tooltip title={isDark ? 'Light mode' : 'Dark mode'}>
-          <motion.div whileTap={{ scale: 0.9 }}>
-            <Button
-              type="text"
-              icon={isDark ? <SunOutlined /> : <MoonOutlined />}
-              onClick={() => dispatch(toggleTheme())}
-              style={{
-                color: isDark ? '#faad14' : '#722ed1',
-                fontSize: 18,
-              }}
-            />
-          </motion.div>
-        </Tooltip>
 
         {/* Notifications */}
         <Tooltip title="Notifications">
-          <Badge count={5} size="small" offset={[-2, 2]}>
+          <Badge count={3} size="small">
             <Button
               type="text"
-              icon={<BellOutlined />}
-              style={{ color: 'var(--text-primary)', fontSize: 18 }}
+              icon={<BellOutlined style={{ fontSize: 18, color: '#616061' }} />}
             />
           </Badge>
         </Tooltip>
 
-        {/* User Menu */}
-        <Dropdown menu={{ items: userMenuItems }} placement="bottomRight" arrow>
+        {/* Messages */}
+        <Tooltip title="Messages">
           <Button
             type="text"
+            icon={<MessageOutlined style={{ fontSize: 18, color: '#616061' }} />}
+          />
+        </Tooltip>
+
+        {/* Settings */}
+        <Tooltip title="Settings">
+          <Button
+            type="text"
+            icon={<SettingOutlined style={{ fontSize: 18, color: '#616061' }} />}
+            onClick={() => navigate('/settings')}
+          />
+        </Tooltip>
+
+        {/* User Profile */}
+        <Dropdown menu={userMenuItems} trigger={['click']} placement="bottomRight">
+          <div
             style={{
-              height: 40,
-              padding: '4px 8px',
               display: 'flex',
               alignItems: 'center',
               gap: 8,
+              cursor: 'pointer',
+              padding: '4px 8px',
+              borderRadius: 6,
+              marginLeft: 8,
             }}
           >
-            <div
+            <Avatar
+              src={user?.avatar}
+              size={32}
               style={{
-                width: 32,
-                height: 32,
-                borderRadius: '50%',
                 background: accent.gradient,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'white',
-                fontWeight: 600,
               }}
             >
               {user?.name?.charAt(0).toUpperCase()}
-            </div>
-            <Text strong className="hidden sm:block">
-              {user?.name?.split(' ')[0]}
-            </Text>
-          </Button>
+            </Avatar>
+          </div>
         </Dropdown>
-      </Space>
-    </AntHeader>
+      </div>
+    </Header>
   );
 };
 
-export default Header;
+export default HeaderComponent;

@@ -1,20 +1,68 @@
 import { useState } from 'react';
 import { Layout } from 'antd';
 import { Outlet } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { motion, AnimatePresence } from 'framer-motion';
 import Sidebar from './Sidebar';
 import Header from './Header';
-import { selectSidebarCollapsed } from '../../store/slices/uiSlice';
+import CreateWorkspaceModal from '../modals/CreateWorkspaceModal';
+import { selectSidebarCollapsed, selectModals, selectBackground, selectBackgroundPreset, selectAccentPreset } from '../../store/slices/uiSlice';
 
 const { Content } = Layout;
 
 const AppLayout = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const dispatch = useDispatch();
   const sidebarCollapsed = useSelector(selectSidebarCollapsed);
+  const modals = useSelector(selectModals);
+  const background = useSelector(selectBackground);
+  const backgroundPreset = useSelector(selectBackgroundPreset);
+  const accent = useSelector(selectAccentPreset);
+
+  // Get background styles
+  const getBackgroundStyle = () => {
+    if (!backgroundPreset || backgroundPreset.type === 'none') {
+      return {};
+    }
+    
+    if (backgroundPreset.type === 'gradient') {
+      return {
+        background: backgroundPreset.value,
+        opacity: background.opacity,
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        pointerEvents: 'none',
+        zIndex: -1,
+      };
+    }
+    
+    if (backgroundPreset.type === 'pattern') {
+      return {
+        background: `${accent.gradient}`,
+        opacity: background.opacity,
+        backgroundImage: backgroundPreset.value,
+        backgroundSize: backgroundPreset.size || '20px 20px',
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        pointerEvents: 'none',
+        zIndex: -1,
+      };
+    }
+    
+    return {};
+  };
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
+      {/* Background Layer */}
+      <div style={getBackgroundStyle()} />
+
       {/* Desktop Sidebar */}
       <div className="hidden lg:block">
         <Sidebar
@@ -53,24 +101,31 @@ const AppLayout = () => {
 
       <Layout
         style={{
-          marginLeft: sidebarCollapsed ? 80 : 250,
+          marginLeft: sidebarCollapsed ? 60 : 260,
           transition: 'margin-left 0.2s ease',
+          background: '#ffffff',
+          minHeight: '100vh',
         }}
         className="lg:ml-0"
       >
         <Header onMenuClick={() => setMobileMenuOpen(true)} />
         <Content
           style={{
-            margin: '24px 16px',
-            padding: 24,
-            minHeight: 280,
-            borderRadius: 12,
+            margin: 0,
+            padding: 0,
+            minHeight: 'calc(100vh - 52px)',
           }}
           className="animate-fade-in"
         >
           <Outlet />
         </Content>
       </Layout>
+
+      {/* Modals */}
+      <CreateWorkspaceModal 
+        open={modals.workspaceCreate} 
+        onClose={() => dispatch({ type: 'ui/closeModal', payload: { modal: 'workspaceCreate' } })}
+      />
     </Layout>
   );
 };

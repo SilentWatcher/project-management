@@ -8,7 +8,7 @@ import { PERMISSIONS } from '../middleware/authorization.js';
 
 // Create new project
 export const createProject = asyncHandler(async (req, res) => {
-  const { name, description, priority, status, startDate, endDate } = req.body;
+  const { name, description, priority, status, startDate, endDate, workspace } = req.body;
   const userId = req.user._id;
 
   // Create project with current user as owner
@@ -19,6 +19,7 @@ export const createProject = asyncHandler(async (req, res) => {
     status: status || 'active',
     startDate,
     endDate,
+    workspace,
     owner: userId,
     members: [{ user: userId, role: 'admin' }]
   });
@@ -46,6 +47,7 @@ export const createProject = asyncHandler(async (req, res) => {
   );
 
   const populatedProject = await Project.findById(project._id)
+    .populate('workspace', 'name')
     .populate('owner', 'name email avatar')
     .populate('members.user', 'name email avatar');
 
@@ -93,6 +95,7 @@ export const getProjects = asyncHandler(async (req, res) => {
   }
 
   const projects = await Project.find(query)
+    .populate('workspace', 'name')
     .populate('owner', 'name email avatar')
     .populate('members.user', 'name email avatar')
     .sort({ updatedAt: -1 });
@@ -108,6 +111,7 @@ export const getProject = asyncHandler(async (req, res) => {
   const { projectId } = req.params;
 
   const project = await Project.findById(projectId)
+    .populate('workspace', 'name')
     .populate('owner', 'name email avatar')
     .populate('members.user', 'name email avatar');
 
@@ -154,13 +158,14 @@ export const getProject = asyncHandler(async (req, res) => {
 // Update project
 export const updateProject = asyncHandler(async (req, res) => {
   const { projectId } = req.params;
-  const { name, description, priority, status, startDate, endDate } = req.body;
+  const { name, description, priority, status, startDate, endDate, workspace } = req.body;
 
   const project = await Project.findByIdAndUpdate(
     projectId,
-    { name, description, priority, status, startDate, endDate },
+    { name, description, priority, status, startDate, endDate, workspace },
     { new: true, runValidators: true }
   )
+    .populate('workspace', 'name')
     .populate('owner', 'name email avatar')
     .populate('members.user', 'name email avatar');
 
@@ -261,6 +266,7 @@ export const addMember = asyncHandler(async (req, res) => {
   await project.save();
 
   const updatedProject = await Project.findById(projectId)
+    .populate('workspace', 'name')
     .populate('owner', 'name email avatar')
     .populate('members.user', 'name email avatar');
 
@@ -292,6 +298,7 @@ export const removeMember = asyncHandler(async (req, res) => {
   await project.save();
 
   const updatedProject = await Project.findById(projectId)
+    .populate('workspace', 'name')
     .populate('owner', 'name email avatar')
     .populate('members.user', 'name email avatar');
 
@@ -330,6 +337,7 @@ export const updateMemberRole = asyncHandler(async (req, res) => {
   await project.save();
 
   const updatedProject = await Project.findById(projectId)
+    .populate('workspace', 'name')
     .populate('owner', 'name email avatar')
     .populate('members.user', 'name email avatar');
 

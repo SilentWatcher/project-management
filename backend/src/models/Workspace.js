@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-const memberSchema = new mongoose.Schema({
+const workspaceMemberSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
@@ -17,45 +17,24 @@ const memberSchema = new mongoose.Schema({
   }
 }, { _id: false });
 
-const projectSchema = new mongoose.Schema({
+const workspaceSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: [true, 'Project name is required'],
+    required: [true, 'Workspace name is required'],
     trim: true,
-    maxlength: [100, 'Project name cannot exceed 100 characters']
+    maxlength: [100, 'Workspace name cannot exceed 100 characters']
   },
   description: {
     type: String,
     trim: true,
     maxlength: [500, 'Description cannot exceed 500 characters']
   },
-  priority: {
-    type: String,
-    enum: ['low', 'medium', 'high'],
-    default: 'medium'
-  },
-  status: {
-    type: String,
-    enum: ['active', 'completed', 'on-hold', 'cancelled'],
-    default: 'active'
-  },
-  startDate: {
-    type: Date
-  },
-  endDate: {
-    type: Date
-  },
-  workspace: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Workspace',
-    required: true
-  },
   owner: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true
   },
-  members: [memberSchema],
+  members: [workspaceMemberSchema],
   isActive: {
     type: Boolean,
     default: true
@@ -65,21 +44,20 @@ const projectSchema = new mongoose.Schema({
 });
 
 // Index for faster queries
-projectSchema.index({ owner: 1 });
-projectSchema.index({ workspace: 1 });
-projectSchema.index({ 'members.user': 1 });
+workspaceSchema.index({ owner: 1 });
+workspaceSchema.index({ 'members.user': 1 });
 
 // Method to check if user is member
-projectSchema.methods.isMember = function(userId) {
+workspaceSchema.methods.isMember = function(userId) {
   return this.members.some(member => member.user.toString() === userId.toString());
 };
 
 // Method to get user role
-projectSchema.methods.getUserRole = function(userId) {
+workspaceSchema.methods.getUserRole = function(userId) {
   if (this.owner.toString() === userId.toString()) return 'admin';
   const member = this.members.find(m => m.user.toString() === userId.toString());
   return member ? member.role : null;
 };
 
-const Project = mongoose.model('Project', projectSchema);
-export default Project;
+const Workspace = mongoose.model('Workspace', workspaceSchema);
+export default Workspace;

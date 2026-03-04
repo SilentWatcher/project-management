@@ -10,6 +10,7 @@ import {
 } from 'antd';
 import { createProject } from '../../store/slices/projectSlice';
 import { closeModal, selectModals, selectAccentPreset } from '../../store/slices/uiSlice';
+import { selectAllWorkspaces, fetchWorkspaces } from '../../store/slices/workspaceSlice';
 import { toast } from 'react-toastify';
 
 const { TextArea } = Input;
@@ -20,13 +21,15 @@ const CreateProjectModal = () => {
   const [form] = Form.useForm();
   const modals = useSelector(selectModals);
   const accent = useSelector(selectAccentPreset);
+  const workspaces = useSelector(selectAllWorkspaces);
   const isOpen = modals.projectCreate;
 
   useEffect(() => {
     if (isOpen) {
+      dispatch(fetchWorkspaces());
       form.resetFields();
     }
-  }, [isOpen, form]);
+  }, [isOpen, form, dispatch]);
 
   const handleCancel = () => {
     dispatch(closeModal({ modal: 'projectCreate' }));
@@ -88,6 +91,26 @@ const CreateProjectModal = () => {
             rows={4}
             style={{ borderRadius: 8, resize: 'none' }}
           />
+        </Form.Item>
+
+        <Form.Item
+          name="workspace"
+          label="Workspace"
+          rules={[{ required: true, message: 'Please select a workspace' }]}
+        >
+          <Select
+            placeholder="Select a workspace"
+            size="large"
+            style={{ borderRadius: 8 }}
+            showSearch
+            optionFilterProp="children"
+          >
+            {workspaces.map((workspace) => (
+              <Option key={workspace._id} value={workspace._id}>
+                {workspace.name}
+              </Option>
+            ))}
+          </Select>
         </Form.Item>
 
         <Form.Item

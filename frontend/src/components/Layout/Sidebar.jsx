@@ -1,4 +1,5 @@
-import { Layout, Menu, Button, Avatar, Typography, Space, Divider } from 'antd';
+import { useState, useEffect } from 'react';
+import { Layout, Menu, Button, Avatar, Typography, Input, Dropdown, Badge, Tooltip } from 'antd';
 import {
   DashboardOutlined,
   ProjectOutlined,
@@ -10,6 +11,15 @@ import {
   PlusOutlined,
   TeamOutlined,
   BarChartOutlined,
+  SearchOutlined,
+  BellOutlined,
+  HomeOutlined,
+  AppstoreOutlined,
+  FileTextOutlined,
+  DownOutlined,
+  MessageOutlined,
+  MoreOutlined,
+  TagOutlined,
 } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
@@ -22,9 +32,13 @@ import {
 } from '../../store/slices/uiSlice';
 import { selectAllProjects } from '../../store/slices/projectSlice';
 import { selectUser } from '../../store/slices/authSlice';
+import { 
+  selectAllWorkspaces, 
+  fetchWorkspaces,
+} from '../../store/slices/workspaceSlice';
 
+const { Text, Title } = Typography;
 const { Sider } = Layout;
-const { Text } = Typography;
 
 const Sidebar = ({ collapsed, mobile, onClose }) => {
   const navigate = useNavigate();
@@ -33,23 +47,64 @@ const Sidebar = ({ collapsed, mobile, onClose }) => {
   const sidebarCollapsed = useSelector(selectSidebarCollapsed);
   const accent = useSelector(selectAccentPreset);
   const projects = useSelector(selectAllProjects);
+  const workspaces = useSelector(selectAllWorkspaces);
   const user = useSelector((state) => state.auth.user);
+  
+  const [currentWorkspace, setCurrentWorkspace] = useState(null);
 
+  useEffect(() => {
+    dispatch(fetchWorkspaces());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (workspaces.length > 0 && !currentWorkspace) {
+      setCurrentWorkspace(workspaces[0]);
+    }
+  }, [workspaces, currentWorkspace]);
+
+  // Slack-inspired navigation items
   const menuItems = [
     {
       key: '/',
-      icon: <DashboardOutlined />,
-      label: 'Dashboard',
+      icon: <HomeOutlined />,
+      label: 'Home',
     },
     {
-      key: '/projects',
-      icon: <ProjectOutlined />,
-      label: 'Projects',
+      key: 'divider1',
+      type: 'divider',
     },
     {
-      key: '/tasks',
-      icon: <CheckSquareOutlined />,
-      label: 'My Tasks',
+      key: 'channels',
+      label: 'Channels',
+      icon: <AppstoreOutlined style={{ fontSize: 18 }} />,
+      children: [
+        {
+          key: '/projects',
+          icon: <ProjectOutlined />,
+          label: 'All Projects',
+        },
+      ],
+    },
+    {
+      key: 'direct',
+      label: 'Direct Messages',
+      icon: <MessageOutlined style={{ fontSize: 18 }} />,
+      children: [
+        {
+          key: '/tasks',
+          icon: <CheckSquareOutlined />,
+          label: 'My Tasks',
+        },
+        {
+          key: '/team',
+          icon: <TeamOutlined />,
+          label: 'Team',
+        },
+      ],
+    },
+    {
+      key: 'divider2',
+      type: 'divider',
     },
     {
       key: '/calendar',
@@ -57,26 +112,18 @@ const Sidebar = ({ collapsed, mobile, onClose }) => {
       label: 'Calendar',
     },
     {
-      key: '/team',
-      icon: <TeamOutlined />,
-      label: 'Team',
-    },
-    {
       key: '/analytics',
       icon: <BarChartOutlined />,
       label: 'Analytics',
     },
-    {
-      key: '/settings',
-      icon: <SettingOutlined />,
-      label: 'Settings',
-    },
   ];
 
   const handleMenuClick = ({ key }) => {
-    navigate(key);
-    if (mobile && onClose) {
-      onClose();
+    if (key.startsWith('/')) {
+      navigate(key);
+      if (mobile && onClose) {
+        onClose();
+      }
     }
   };
 
@@ -87,213 +134,248 @@ const Sidebar = ({ collapsed, mobile, onClose }) => {
     }
   };
 
+  // User menu items
+  const userMenuItems = {
+    items: [
+      {
+        key: 'profile',
+        label: 'Profile',
+      },
+      {
+        key: 'settings',
+        label: 'Settings',
+        onClick: () => navigate('/settings'),
+      },
+      {
+        type: 'divider',
+      },
+      {
+        key: 'logout',
+        label: 'Log out',
+        danger: true,
+      },
+    ],
+  };
+
   return (
     <Sider
       trigger={null}
       collapsible
       collapsed={collapsed}
-      width={250}
-      collapsedWidth={80}
+      width={260}
+      collapsedWidth={60}
       style={{
-        background: 'var(--bg-primary)',
-        borderRight: '1px solid var(--border-color)',
+        background: '#1a1d21', // Slack dark background
+        borderRight: '1px solid #2c3038',
         position: mobile ? 'relative' : 'fixed',
         left: 0,
         top: 0,
         bottom: 0,
         zIndex: 100,
-        overflow: 'auto',
+        overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column',
       }}
-      className="shadow-lg"
     >
-      {/* Logo */}
+      {/* Workspace Header */}
       <div
         style={{
-          height: 64,
+          height: 48,
           display: 'flex',
           alignItems: 'center',
-          justifyContent: collapsed ? 'center' : 'flex-start',
-          padding: collapsed ? 0 : '0 24px',
-          borderBottom: '1px solid var(--border-color)',
+          justifyContent: collapsed ? 'center' : 'space-between',
+          padding: collapsed ? 0 : '0 12px',
+          borderBottom: '1px solid #2c3038',
+          cursor: 'pointer',
+          background: '#1264a3', // Slack blue
         }}
+        onClick={() => navigate('/workspaces')}
       >
-        <motion.div
-          initial={false}
-          animate={{ scale: collapsed ? 0.8 : 1 }}
-          className="flex items-center gap-3"
-        >
+        {!collapsed && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div
+              style={{
+                width: 28,
+                height: 28,
+                borderRadius: 6,
+                background: 'white',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#1264a3',
+                fontWeight: 'bold',
+                fontSize: 14,
+              }}
+            >
+              {currentWorkspace?.name?.charAt(0).toUpperCase() || 'W'}
+            </div>
+            <Text strong style={{ color: 'white', fontSize: 15 }}>
+              {currentWorkspace?.name || 'TaskFlow'}
+            </Text>
+          </div>
+        )}
+        {!collapsed && (
+          <DownOutlined style={{ color: 'rgba(255,255,255,0.7)' }} />
+        )}
+        {collapsed && (
           <div
             style={{
-              width: 36,
-              height: 36,
-              borderRadius: 8,
-              background: accent.gradient,
+              width: 28,
+              height: 28,
+              borderRadius: 6,
+              background: 'white',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
+              color: '#1264a3',
+              fontWeight: 'bold',
+              fontSize: 14,
             }}
           >
-            <ProjectOutlined style={{ color: 'white', fontSize: 20 }} />
+            {currentWorkspace?.name?.charAt(0).toUpperCase() || 'W'}
           </div>
-          {!collapsed && (
-            <Text
-              strong
-              style={{
-                fontSize: 18,
-                background: accent.gradient,
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-              }}
-            >
-              TaskFlow
-            </Text>
-          )}
-        </motion.div>
+        )}
       </div>
 
-      {/* Create Project Button */}
-      <div style={{ padding: collapsed ? '16px 8px' : '16px 24px' }}>
-        <Button
-          type="primary"
-          icon={<PlusOutlined />}
-          block={!collapsed}
-          onClick={handleCreateProject}
-          style={{
-            background: accent.gradient,
-            border: 'none',
-            borderRadius: 8,
-            height: collapsed ? 40 : 44,
-          }}
-        >
-          {!collapsed && 'New Project'}
-        </Button>
-      </div>
-
-      {/* Main Navigation */}
-      <Menu
-        mode="inline"
-        selectedKeys={[location.pathname]}
-        items={menuItems}
-        onClick={handleMenuClick}
-        style={{
-          background: 'transparent',
-          borderRight: 'none',
-        }}
-        inlineCollapsed={collapsed}
-      />
-
-      {/* Recent Projects Section */}
-      {!collapsed && projects.length > 0 && (
-        <>
-          <Divider style={{ margin: '16px 24px' }}>
-            <Text type="secondary" style={{ fontSize: 12 }}>
-              Recent Projects
-            </Text>
-          </Divider>
-          <div style={{ padding: '0 16px' }}>
-            {projects.slice(0, 5).map((project) => (
-              <motion.div
-                key={project._id}
-                whileHover={{ x: 4 }}
-                onClick={() => navigate(`/projects/${project._id}`)}
-                style={{
-                  padding: '8px 12px',
-                  borderRadius: 8,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 12,
-                  marginBottom: 4,
-                }}
-                className="hover:bg-opacity-10 hover:bg-gray-500"
-              >
-                <div
-                  style={{
-                    width: 8,
-                    height: 8,
-                    borderRadius: '50%',
-                    background: accent.primary,
-                  }}
-                />
-                <Text
-                  ellipsis
-                  style={{
-                    flex: 1,
-                    fontSize: 14,
-                    color: location.pathname === `/projects/${project._id}`
-                      ? accent.primary
-                      : 'var(--text-secondary)',
-                  }}
-                >
-                  {project.name}
-                </Text>
-              </motion.div>
-            ))}
-          </div>
-        </>
+      {/* Search */}
+      {!collapsed && (
+        <div style={{ padding: '10px 12px' }}>
+          <Input
+            placeholder="Search"
+            prefix={<SearchOutlined style={{ color: '#616061' }} />}
+            style={{
+              background: '#222529',
+              border: 'none',
+              borderRadius: 6,
+              color: 'white',
+              fontSize: 13,
+            }}
+          />
+        </div>
       )}
 
-      {/* Bottom Section */}
+      {/* Navigation Menu */}
+      <div style={{ flex: 1, overflow: 'auto', padding: '8px 0' }}>
+        <Menu
+          mode="inline"
+          selectedKeys={[location.pathname]}
+          items={menuItems}
+          onClick={handleMenuClick}
+          style={{
+            background: 'transparent',
+            borderRight: 'none',
+            color: '#ababad',
+          }}
+          inlineCollapsed={collapsed}
+          subMenuOpenDelay={0.1}
+          subMenuCloseDelay={0.1}
+        />
+        
+        {/* Projects Section */}
+        {!collapsed && projects.length > 0 && (
+          <>
+            <div style={{ padding: '16px 12px 4px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <Text style={{ color: '#ababad', fontSize: 11, fontWeight: 600, textTransform: 'uppercase' }}>
+                Projects
+              </Text>
+              <Button
+                type="text"
+                size="small"
+                icon={<PlusOutlined style={{ color: '#ababad', fontSize: 12 }} />}
+                onClick={handleCreateProject}
+                style={{ color: '#ababad', padding: '0 4px' }}
+              />
+            </div>
+            <Menu
+              mode="inline"
+              selectable={false}
+              style={{
+                background: 'transparent',
+                borderRight: 'none',
+                color: '#ababad',
+              }}
+            >
+              {projects.slice(0, 8).map((project) => (
+                <Menu.Item
+                  key={project._id}
+                  icon={<AppstoreOutlined />}
+                  onClick={() => navigate(`/projects/${project._id}`)}
+                  style={{
+                    paddingLeft: collapsed ? 0 : 16,
+                    color: location.pathname === `/projects/${project._id}` ? 'white' : '#ababad',
+                  }}
+                >
+                  <Text ellipsis style={{ color: 'inherit', fontSize: 14 }}>
+                    {project.name}
+                  </Text>
+                </Menu.Item>
+              ))}
+            </Menu>
+          </>
+        )}
+      </div>
+
+      {/* Bottom Actions */}
       <div
         style={{
-          position: 'absolute',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          padding: collapsed ? '16px 8px' : '16px 24px',
-          borderTop: '1px solid var(--border-color)',
-          background: 'var(--bg-primary)',
+          padding: collapsed ? '8px 0' : '8px 12px',
+          borderTop: '1px solid #2c3038',
+          background: '#1a1d21',
         }}
       >
-        <Space direction="vertical" style={{ width: '100%' }} size="middle">
-          {/* Collapse Toggle */}
-          {!mobile && (
-            <Button
-              type="text"
-              icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-              onClick={() => dispatch(toggleSidebar())}
-              style={{
-                width: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: collapsed ? 'center' : 'flex-start',
-                color: 'var(--text-secondary)',
-              }}
-            >
-              {!collapsed && 'Collapse'}
-            </Button>
-          )}
-
-          {/* User Profile */}
-          <div
+        {/* Collapse Toggle */}
+        {!mobile && (
+          <Button
+            type="text"
+            icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+            onClick={() => dispatch(toggleSidebar())}
             style={{
+              width: '100%',
               display: 'flex',
               alignItems: 'center',
-              gap: 12,
               justifyContent: collapsed ? 'center' : 'flex-start',
+              color: '#ababad',
+              marginBottom: 8,
             }}
           >
-            <Avatar
-              src={user?.avatar}
-              style={{
-                background: accent.gradient,
-                flexShrink: 0,
-              }}
-            >
-              {user?.name?.charAt(0).toUpperCase()}
-            </Avatar>
-            {!collapsed && (
-              <div style={{ overflow: 'hidden' }}>
-                <Text strong style={{ display: 'block' }}>
-                  {user?.name}
-                </Text>
-                <Text type="secondary" style={{ fontSize: 12 }} ellipsis>
-                  {user?.email}
-                </Text>
-              </div>
-            )}
-          </div>
-        </Space>
+            {!collapsed && 'Collapse'}
+          </Button>
+        )}
+
+        {/* User Profile */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            justifyContent: collapsed ? 'center' : 'flex-start',
+            padding: '4px 8px',
+            borderRadius: 6,
+            cursor: 'pointer',
+            background: '#222529',
+          }}
+        >
+          <Avatar
+            src={user?.avatar}
+            size={collapsed ? 28 : 32}
+            style={{
+              background: accent.gradient,
+              flexShrink: 0,
+            }}
+          >
+            {user?.name?.charAt(0).toUpperCase()}
+          </Avatar>
+          {!collapsed && (
+            <div style={{ flex: 1, overflow: 'hidden' }}>
+              <Text strong style={{ display: 'block', color: 'white', fontSize: 13 }}>
+                {user?.name}
+              </Text>
+              <Text style={{ color: '#ababad', fontSize: 11 }}>
+                {user?.status || 'Online'}
+              </Text>
+            </div>
+          )}
+        </div>
       </div>
     </Sider>
   );

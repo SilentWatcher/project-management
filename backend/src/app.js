@@ -14,6 +14,7 @@ import boardRoutes from './routes/boards.js';
 import columnRoutes from './routes/columns.js';
 import taskRoutes from './routes/tasks.js';
 import uploadRoutes from './routes/upload.js';
+import workspaceRoutes from './routes/workspaces.js';
 
 // Load env vars
 dotenv.config();
@@ -49,6 +50,7 @@ app.get('/health', (req, res) => {
 // API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
+app.use('/api/workspaces', workspaceRoutes);
 app.use('/api/boards', boardRoutes);
 app.use('/api/columns', columnRoutes);
 app.use('/api/tasks', taskRoutes);

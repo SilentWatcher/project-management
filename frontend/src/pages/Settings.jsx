@@ -11,6 +11,7 @@ import {
   Avatar,
   Row,
   Col,
+  Slider,
 } from 'antd';
 import {
   UserOutlined,
@@ -18,6 +19,7 @@ import {
   MoonOutlined,
   SunOutlined,
   SaveOutlined,
+  BgColorsOutlined,
 } from '@ant-design/icons';
 import { motion } from 'framer-motion';
 import {
@@ -26,6 +28,9 @@ import {
   selectAccentPreset,
   ACCENT_PRESETS,
   setAccentColor,
+  setBackground,
+  selectBackground,
+  BACKGROUND_PRESETS,
 } from '../store/slices/uiSlice';
 import { selectUser } from '../store/slices/authSlice';
 import { toast } from 'react-toastify';
@@ -37,7 +42,16 @@ const Settings = () => {
   const user = useSelector(selectUser);
   const isDark = useSelector(selectTheme);
   const accent = useSelector(selectAccentPreset);
+  const background = useSelector(selectBackground);
   const [form] = Form.useForm();
+
+  const handleBackgroundChange = (preset) => {
+    dispatch(setBackground({ ...background, preset }));
+  };
+
+  const handleOpacityChange = (opacity) => {
+    dispatch(setBackground({ ...background, opacity }));
+  };
 
   const handleSaveProfile = (values) => {
     toast.success('Profile updated successfully!');
@@ -189,6 +203,87 @@ const Settings = () => {
                   ))}
                 </Space>
               </div>
+            </div>
+
+            <Divider />
+
+            {/* Background Selection */}
+            <div>
+              <Space>
+                <BgColorsOutlined />
+                <div>
+                  <Text strong>Background</Text>
+                  <br />
+                  <Text type="secondary">Choose a background style</Text>
+                </div>
+              </Space>
+              <div style={{ marginTop: 16 }}>
+                <Row gutter={[16, 16]}>
+                  {Object.entries(BACKGROUND_PRESETS).map(([key, preset]) => (
+                    <Col xs={12} sm={8} md={6} key={key}>
+                      <motion.div
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => handleBackgroundChange(key)}
+                        style={{
+                          height: 60,
+                          borderRadius: 8,
+                          cursor: 'pointer',
+                          overflow: 'hidden',
+                          border: background.preset === key
+                            ? '3px solid var(--text-primary)'
+                            : '3px solid transparent',
+                          position: 'relative',
+                        }}
+                        title={preset.name}
+                      >
+                        {preset.type === 'none' ? (
+                          <div style={{
+                            width: '100%',
+                            height: '100%',
+                            background: 'var(--bg-secondary)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                          }}>
+                            <Text>None</Text>
+                          </div>
+                        ) : preset.type === 'gradient' ? (
+                          <div style={{
+                            width: '100%',
+                            height: '100%',
+                            background: preset.value,
+                          }} />
+                        ) : (
+                          <div style={{
+                            width: '100%',
+                            height: '100%',
+                            background: accent.gradient,
+                            backgroundSize: preset.size || '20px 20px',
+                            backgroundImage: preset.value,
+                          }} />
+                        )}
+                      </motion.div>
+                      <Text type="secondary" style={{ fontSize: 12 }}>
+                        {preset.name}
+                      </Text>
+                    </Col>
+                  ))}
+                </Row>
+              </div>
+              
+              {background.preset !== 'none' && (
+                <div style={{ marginTop: 16 }}>
+                  <Text>Background Opacity: {Math.round(background.opacity * 100)}%</Text>
+                  <Slider
+                    min={0.01}
+                    max={0.3}
+                    step={0.01}
+                    value={background.opacity}
+                    onChange={handleOpacityChange}
+                  />
+                </div>
+              )}
             </div>
           </Space>
         </Card>
