@@ -56,7 +56,7 @@ const templates = {
                 </ul>
               </div>
               
-              <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}" style="display: inline-block; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 10px; font-weight: 600; font-size: 16px;">
+              <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}" style="display: inline-block; background: #6366f1; color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 10px; font-weight: 600; font-size: 16px; mso-padding-alt: 14px 28px;">
                 Get Started
               </a>
             </td>
@@ -101,7 +101,7 @@ const templates = {
               <p style="color: #64748b; margin: 0 0 24px; font-size: 16px; line-height: 1.6;">
                 Hi ${user.name}, we received a request to reset your password. Click the button below to create a new password:
               </p>
-              <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/reset-password?token=${resetToken}" style="display: inline-block; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 10px; font-weight: 600; font-size: 16px;">
+              <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/reset-password?token=${resetToken}" style="display: inline-block; background: #6366f1; color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 10px; font-weight: 600; font-size: 16px; mso-padding-alt: 14px 28px;">
                 Reset Password
               </a>
               <p style="color: #94a3b8; margin: 24px 0 0; font-size: 14px;">
@@ -137,7 +137,7 @@ const templates = {
               <p style="color: #64748b; margin: 0 0 24px; font-size: 16px; line-height: 1.6;">
                 <strong>${inviterName}</strong> has invited you to join the project <strong>"${projectName}"</strong> on Zenkai.
               </p>
-              <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/projects" style="display: inline-block; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 10px; font-weight: 600; font-size: 16px;">
+              <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/projects" style="display: inline-block; background: #6366f1; color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 10px; font-weight: 600; font-size: 16px; mso-padding-alt: 14px 28px;">
                 View Project
               </a>
             </td>

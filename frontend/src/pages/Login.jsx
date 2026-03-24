@@ -200,6 +200,18 @@ const Login = () => {
               />
             </Form.Item>
 
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 24 }}>
+              <Link
+                to="/forgot-password"
+                style={{
+                  color: accent.primary,
+                  fontSize: 13,
+                }}
+              >
+                Forgot password?
+              </Link>
+            </div>
+
             <Form.Item style={{ marginBottom: 0 }}>
               <Button
                 type="primary"
